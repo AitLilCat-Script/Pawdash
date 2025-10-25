@@ -7,6 +7,13 @@ No setup, no backend — just beautiful, fast, and persistent project management
 
 ---
 
+## 🖼️ Preview
+
+Here’s how Pawdash looks in action ✨
+
+![Pawdash Preview](Preview.png)
+
+
 ## ✨ Features
 
 - 🧩 Organize tasks & sections visually  
