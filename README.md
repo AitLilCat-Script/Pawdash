@@ -38,9 +38,3 @@ No setup, no backend — just beautiful, fast, and persistent project management
 “Pawdash is where your ideas rest, stretch, and come to life.”
 
 Made with ❤️ by AitLilCat
-```bash
-
----
-
-It’s short, clean, and GitHub-display-ready (works perfectly in dark/light mode).  
-Would you like me to add **one small preview image block** at the top (for when you upload a screenshot later)?
