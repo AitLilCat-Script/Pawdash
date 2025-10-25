@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>🐾 Pawjects — Local Taskboard</title>
+    <meta name="description" content="🐾 Pawjects — An offline local taskboard for managing tasks, sections, and notes with autosave and customization." />
+    <link rel="stylesheet" href="Pawjects.css" />
+    <script src="Pawjects.js" defer></script>
+</head>
+
+<body>
+    <!-- 🧩 Topbar -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <h1 id="board-title" contenteditable="true" title="Click to rename your Taskboard!">
+                🐾 Pawjects — Local Taskboard
+            </h1>
+            <nav class="links" aria-label="Quick links">
+                <a href="https://proxmox.example.local:8006" target="_blank" rel="noopener">Proxmox</a>
+                <a href="https://panel.pelican.example.local" target="_blank" rel="noopener">Pelican Panel</a>
+            </nav>
+        </div>
+
+        <div class="topbar-right">
+            <div class="controls">
+                <button id="init-section-btn" class="pill">⚙️ New Section</button>
+                <button id="quick-add-btn" class="pill">➕ Quick Task</button>
+                <button id="export-json" class="pill">📤 Export</button>
+                <button id="import-json-btn" class="pill">📥 Import</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 🌈 Global Progress -->
+    <div id="global-progress-container" class="global-progress-container">
+        <div id="global-progress-bar" class="global-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+
+    <!-- 🧱 Main Layout -->
+    <main class="container">
+        <!-- 🪟 Sidebar -->
+        <aside class="info-panel" aria-label="Sidebar">
+            <div class="info-box">
+                <h3>💻 System Overview</h3>
+                <pre class="info-list">
+192.168.0.10   Dev Server A
+192.168.0.11   Dev Server B
+192.168.0.20   Storage Node
+192.168.0.30   Test Machine
+                </pre>
+            </div>
+
+            <div class="info-box">
+                <h3>🔌 Services</h3>
+                <pre class="info-list">
+example.com:8080   Web App
+example.com:3306   Database
+example.com:25565  Game Server
+example.com:9000   API Gateway
+                </pre>
+            </div>
+
+            <div class="info-box search-box">
+                <div class="search-row">
+                    <input id="global-search" class="search-input" placeholder="🔍 Search tasks..." />
+                    <select id="filter-select" class="filter-select">
+                        <option value="">All</option>
+                    </select>
+                </div>
+                <p class="hint">
+                    N = new • Q = quick add • / = search • Ctrl+E = export • Ctrl+Z = undo
+                </p>
+            </div>
+        </aside>
+
+        <!-- 🗂 Dynamic Sections -->
+        <section id="dynamic-sections" class="dynamic-sections" aria-live="polite">
+            <!-- 📘 Static Help Section -->
+            <section class="todo-section static-readme" draggable="false">
+                <header class="section-header">
+                    <div class="left">
+                        <h2 class="title">📘 HOW TO USE PAWJECTS</h2>
+                        <div class="meta"><span class="tag">help</span></div>
+                    </div>
+                </header>
+
+                <div class="section-body">
+                    <ul class="tasks readme">
+                        <li>🧭 <b>Title:</b> Click the title above to rename your dashboard.</li>
+                        <li>🌐 <b>Links:</b> Edit or replace Proxmox / Pelican URLs in the header.</li>
+                        <li>💻 <b>IPs:</b> Update system IPs in the sidebar overview.</li>
+                        <li>🧱 <b>Sections:</b> Support tags, colors, and due dates.</li>
+                        <li>🧠 <b>Autosave:</b> Everything saves locally in your browser.</li>
+                        <li>📦 <b>Backup:</b> Export / Import JSON to keep your progress.</li>
+                        <li>🪄 <b>Descriptions:</b> Click a task title to open or edit its notes.</li>
+                    </ul>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <!-- 📎 Footer -->
+    <footer class="footer">
+        ✔ Autosaves locally • <span id="last-saved">Not saved yet</span>
+    </footer>
+
+    <!-- 🧩 Templates -->
+    <template id="section-template">
+        <section class="todo-section" draggable="true">
+            <header class="section-header">
+                <div class="left">
+                    <h2 class="title"></h2>
+                    <div class="meta">
+                        <span class="tag"></span>
+                        <span class="due"></span>
+                    </div>
+                </div>
+                <div class="section-controls">
+                    <button class="small add-task">+ Task</button>
+                    <button class="small edit-section">Edit</button>
+                    <button class="small delete-section danger">Delete</button>
+                </div>
+            </header>
+
+            <div class="section-body">
+                <div class="progress-wrap">
+                    <div class="progress-bar small"><div class="progress" style="width:0%"></div></div>
+                    <div class="progress-label">0% done</div>
+                </div>
+
+                <ul class="tasks"></ul>
+
+                <div class="add-inline">
+                    <input class="inline-input" placeholder="✏️ New task — press Enter to add" />
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <template id="task-template">
+        <li>
+            <div class="task-main">
+                <div class="task-left">
+                    <div class="task-title-row">
+                        <input type="checkbox" />
+                        <label></label>
+                    </div>
+                    <div class="description hidden"></div>
+                </div>
+                <div class="task-actions">
+                    <button class="small edit-task" title="Edit Task">✏️</button>
+                    <button class="small edit-desc" title="Edit Description">📝</button>
+                    <button class="small delete-task danger" title="Delete Task">🗑</button>
+                </div>
+            </div>
+        </li>
+    </template>
+
+    <!-- 📝 Edit Description Modal -->
+    <div id="desc-modal" class="modal hidden" role="dialog" aria-modal="true">
+        <div class="modal-content">
+            <h3>📝 Edit Description</h3>
+            <textarea id="desc-input" placeholder="Write something..." rows="6"></textarea>
+            <div class="modal-actions">
+                <button id="desc-save" class="save">💾 Save</button>
+                <button id="desc-cancel" class="cancel">✖ Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✏️ Edit Task Modal -->
+    <div id="task-modal" class="modal hidden" role="dialog" aria-modal="true">
+        <div class="modal-content">
+            <h3>✏️ Edit Task</h3>
+            <input id="task-input" type="text" placeholder="Update your task..." />
+            <div class="modal-actions">
+                <button id="task-save" class="save">💾 Save</button>
+                <button id="task-cancel" class="cancel">✖ Cancel</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
